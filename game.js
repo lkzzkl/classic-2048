@@ -351,7 +351,13 @@ if (typeof document !== 'undefined') {
     var SIZE = Game2048.SIZE;
     var BEST_KEY = '2048-ai-hint-best';
     var SAVE_KEY = 'classic-2048-save-v1';
-    var SLIDE_MS = 150;
+    // Single source of truth: the CSS variable drives the transition itself,
+    // so the repaint that reveals the merged number never lags behind it.
+    var SLIDE_MS = parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue('--slide-duration')
+    ) || 110;
+    var REDUCE_MOTION = !!(window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches);
 
     var boardEl = document.getElementById('board');
     var scoreEl = document.getElementById('score');
@@ -553,6 +559,12 @@ if (typeof document !== 'undefined') {
 
       if (!moving) return;
 
+      if (REDUCE_MOTION) {
+        state.traces = [];
+        render(false);
+        return;
+      }
+
       var token = ++animToken;
       requestAnimationFrame(function () {
         requestAnimationFrame(function () {
@@ -567,7 +579,7 @@ if (typeof document !== 'undefined') {
         if (token !== animToken) return;
         state.traces = [];
         render(false);
-      }, SLIDE_MS + 30);
+      }, SLIDE_MS + 12);
     }
 
     function showScoreGain(amount) {

@@ -8,6 +8,9 @@
   --accent: #1d9e75;
   --gap: 12px;
   --radius: 8px;
+  --slide-duration: 110ms;
+  --merge-duration: 220ms;
+  --flash-duration: 260ms;
 }
 
 * { box-sizing: border-box; }
@@ -77,7 +80,7 @@ h1 {
   text-shadow: 0 1px 3px rgba(80, 65, 50, 0.45);
 }
 
-.score-gain.show { animation: float-up 750ms ease-out; }
+.score-gain.show { animation: float-up 650ms ease-out; }
 
 @keyframes float-up {
   0% { opacity: 0; transform: translateY(8px) scale(0.9); }
@@ -176,7 +179,7 @@ h1 {
 }
 
 .cell-merge { background: rgba(255, 255, 255, 0.38); }
-.cell-merge-flash { animation: cell-flash 340ms ease-out; }
+.cell-merge-flash { animation: cell-flash var(--flash-duration) ease-out; }
 
 @keyframes cell-flash {
   0% { background: #fff3cf; }
@@ -200,11 +203,11 @@ h1 {
 }
 
 .tile-long { font-size: clamp(17px, 4.6vw, 27px); }
-.tile-new { animation: pop-in 180ms ease-out; }
+.tile-new { animation: pop-in 150ms ease-out; }
 
 .tile-sliding {
   z-index: 2;
-  transition: transform 150ms cubic-bezier(0.22, 0.68, 0.28, 1);
+  transition: transform var(--slide-duration) cubic-bezier(0.22, 0.68, 0.28, 1);
   box-shadow: 0 5px 12px rgba(90, 75, 60, 0.22);
 }
 
@@ -212,7 +215,7 @@ h1 {
 
 .tile-merged {
   z-index: 3;
-  animation: merge-burst 280ms cubic-bezier(0.2, 0.9, 0.3, 1);
+  animation: merge-burst var(--merge-duration) cubic-bezier(0.2, 0.9, 0.3, 1);
 }
 
 @keyframes pop-in {
