@@ -2,9 +2,9 @@
 
 > 经典 2048 复刻，额外提供一个基于 expectimax 搜索的「AI 提示」。纯 HTML / CSS / JavaScript，零依赖、零构建，双击即玩。
 
-**在线试玩**：https://lkzzkl.github.io/2048-ai-hint/ · **源码**：https://github.com/lkzzkl/2048-ai-hint
+**在线试玩**：https://lkzzkl.github.io/classic-2048/ · **源码**：https://github.com/lkzzkl/classic-2048
 
-![游戏界面截图](assets/screenshot.png)
+![游戏界面预览](assets/preview.svg)
 
 ## 玩法
 
@@ -30,12 +30,12 @@
 ## 项目结构
 
 ```
-2048-ai-hint/
+classic-2048/
 ├── index.html            # 页面结构
 ├── style.css             # 棋盘、配色、动画、响应式
 ├── game.js               # 纯逻辑 Game2048 + 浏览器 UI（DOM 守卫隔离）
 ├── tests/logic.test.js   # Node 内置 test runner 单元测试
-├── assets/screenshot.png # 游戏界面截图
+├── assets/preview.svg     # 界面预览（矢量 SVG）
 ├── README.md
 ├── .gitignore
 └── LICENSE
