@@ -157,3 +157,120 @@ test('bestMove keeps a large tile in the corner region', () => {
   const dir = G.bestMove(board, 2);
   assert.ok(G.DIRS.includes(dir));
 });
+
+test('slide movements describe where every tile travels', () => {
+  assert.deepEqual(G.slide([2, 0, 2, 4]).movements, [
+    { from: 0, to: 0, value: 2, merged: true },
+    { from: 2, to: 0, value: 2, merged: true },
+    { from: 3, to: 1, value: 4, merged: false }
+  ]);
+  assert.deepEqual(G.slide([0, 0, 0, 8]).movements, [
+    { from: 3, to: 0, value: 8, merged: false }
+  ]);
+  assert.deepEqual(G.slide([0, 0, 0, 0]).movements, []);
+});
+
+test('move traces map old board cells to new board cells', () => {
+  const board = rows([
+    '2 2 0 0',
+    '0 0 0 0',
+    '0 0 0 0',
+    '0 0 0 0'
+  ]);
+  assert.deepEqual(G.move(board, 'left').traces, [
+    { from: [0, 0], to: [0, 0], value: 2, merged: true },
+    { from: [0, 1], to: [0, 0], value: 2, merged: true }
+  ]);
+
+  const right = G.move(board, 'right').traces;
+  assert.deepEqual(right[0].to, [0, 3]);
+  assert.deepEqual(right[1].from, [0, 0]);
+  assert.ok(right.every((t) => t.merged));
+
+  const vertical = rows([
+    '2 0 0 0',
+    '0 0 0 0',
+    '0 0 0 0',
+    '2 0 0 0'
+  ]);
+  const down = G.move(vertical, 'down').traces;
+  assert.deepEqual(down[0].to, [3, 0]);
+  assert.deepEqual(down[1].from, [0, 0]);
+  assert.ok(down.some((t) => t.merged));
+});
+
+test('skipTraces keeps the move result identical for search hot paths', () => {
+  const board = rows([
+    '2 2 4 0',
+    '0 8 8 0',
+    '2 4 2 4',
+    '0 0 0 0'
+  ]);
+  const full = G.move(board, 'left');
+  const lean = G.move(board, 'left', true);
+  assert.deepEqual(lean.board, full.board);
+  assert.equal(lean.gained, full.gained);
+  assert.equal(lean.changed, full.changed);
+  assert.deepEqual(lean.mergedCells, full.mergedCells);
+  assert.deepEqual(lean.traces, []);
+  assert.ok(full.traces.length > 0);
+});
+
+test('validateSave accepts a valid payload and fills in defaults', () => {
+  const board = rows([
+    '2 4 0 0',
+    '0 0 0 0',
+    '0 0 0 0',
+    '0 0 0 0'
+  ]);
+  const full = G.validateSave({
+    version: 1,
+    board,
+    score: 12,
+    best: 40,
+    won: true,
+    over: false,
+    keepPlaying: true,
+    history: [{ board, score: 8 }]
+  });
+  assert.deepEqual(full.board, board);
+  assert.equal(full.score, 12);
+  assert.equal(full.best, 40);
+  assert.equal(full.won, true);
+  assert.equal(full.keepPlaying, true);
+  assert.equal(full.history.length, 1);
+
+  const minimal = G.validateSave({ version: 1, board });
+  assert.equal(minimal.score, 0);
+  assert.equal(minimal.best, 0);
+  assert.deepEqual(minimal.history, []);
+  assert.notStrictEqual(minimal.board, board);
+});
+
+test('validateSave rejects corrupted saves and drops invalid history', () => {
+  assert.equal(G.validateSave(null), null);
+  assert.equal(G.validateSave({ version: 2, board: G.emptyBoard() }), null);
+  assert.equal(G.validateSave({ version: 1, board: [[2, 2], [2, 2]] }), null);
+  assert.equal(G.validateSave({ version: 1 }), null);
+
+  const nonPower = G.emptyBoard();
+  nonPower[0][0] = 3;
+  assert.equal(G.isValidBoard(nonPower), false);
+  assert.equal(G.validateSave({ version: 1, board: nonPower }), null);
+
+  const negative = G.emptyBoard();
+  negative[1][1] = -2;
+  assert.equal(G.validateSave({ version: 1, board: negative }), null);
+
+  const valid = G.validateSave({
+    version: 1,
+    board: G.emptyBoard(),
+    history: [
+      { board: nonPower, score: 1 },
+      { board: G.emptyBoard(), score: 2 },
+      { score: 3 }
+    ]
+  });
+  assert.equal(valid.history.length, 1);
+  assert.equal(valid.history[0].score, 2);
+});

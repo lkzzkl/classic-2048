@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="description" content="2048 经典复刻，附带基于 expectimax 的 AI 决策提示。零依赖，打开即玩。">
+  <meta name="description" content="2048 经典复刻，带方块滑动与合并动画、进度自动保存和 expectimax AI 决策提示。零依赖，打开即玩。">
   <title>2048 · AI 提示版</title>
   <link rel="stylesheet" href="style.css">
   <script src="game.js" defer></script>
@@ -16,7 +16,7 @@
         <p class="subtitle">经典复刻 · 带 AI 决策提示</p>
       </div>
       <div class="scores">
-        <div class="score-box"><span>分数</span><strong id="score">0</strong></div>
+        <div class="score-box"><span>分数</span><strong id="score">0</strong><span id="score-gain" class="score-gain"></span></div>
         <div class="score-box"><span>最高分</span><strong id="best">0</strong></div>
       </div>
     </header>
@@ -27,7 +27,9 @@
         <button id="new-game" class="btn btn-primary" type="button">新游戏</button>
         <button id="hint" class="btn btn-accent" type="button">AI 提示</button>
         <button id="undo" class="btn" type="button">撤销一步</button>
+        <button id="save" class="btn" type="button">保存进度</button>
       </div>
+      <p id="save-status" class="save-status" aria-live="polite"><span class="save-dot"></span><span id="save-text">进度自动保存</span></p>
     </section>
 
     <p id="hint-bar" class="hint-bar" aria-live="polite"></p>
@@ -50,8 +52,10 @@
       <h2>玩法与快捷键</h2>
       <ul>
         <li><b>↑ ↓ ← →</b> 或 <b>W A S D</b>：移动全部方块，相同数字相撞时合并，得分等于新方块的值。</li>
-        <li><b>U</b> 或 <b>Ctrl + Z</b>：撤销一步（最多回溯 30 步）；<b>新游戏</b> 重新开局。</li>
-        <li>手机 / 平板：在棋盘上滑动即可，最高分保存在本地浏览器中。</li>
+        <li><b>U</b> 或 <b>Ctrl + Z</b>：撤销一步（最多回溯 30 步）；<b>新游戏</b> 重新开局并覆盖存档。</li>
+        <li>手机 / 平板：在棋盘上滑动即可。</li>
+        <li>每次移动都会自动保存完整进度，关掉页面再打开会回到当时的棋盘；也可点「保存进度」或按 <b>Ctrl + S</b> 手动保存。</li>
+        <li>滑动时方块按真实路径移动，两个相同数字撞到一起后弹出新值，并在分数框飘出 <b>+N</b>。</li>
       </ul>
       <h2>AI 提示是怎么算的</h2>
       <p>点击「AI 提示」会用 <b>expectimax 搜索</b>（深度 2）枚举四个方向，再对随机新方块做概率展开，用启发式函数评估局面：鼓励空格多、大数字聚在左上角、相邻数值接近。它<strong>不替你走棋</strong>，只给一个方向建议，因此保留玩家决策权，也避免把提示做成「自动通关」而破坏乐趣。</p>
